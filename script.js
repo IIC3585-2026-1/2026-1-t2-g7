@@ -153,14 +153,14 @@
 
   const formatearJson = (valor) => JSON.stringify(valor, null, 2);
 
-  const cargarDatosDesdeHtml = () => {
-    const elementoDatos = document.getElementById("datos-json");
+  const cargarDatosDesdeJson = async () => {
+    const respuesta = await fetch("./datos.json");
 
-    if (!elementoDatos) {
-      throw new Error("No se encontro el bloque de datos JSON en el HTML.");
+    if (!respuesta.ok) {
+      throw new Error("No se pudo cargar el archivo datos.json.");
     }
 
-    return JSON.parse(elementoDatos.textContent);
+    return respuesta.json();
   };
 
   const obtenerCampos = (datos) =>
@@ -249,7 +249,7 @@
       .execute();
   };
 
-  const iniciarAplicacion = () => {
+  const iniciarAplicacion = async () => {
     const salidaDatos = document.getElementById("salida-datos");
     const salidaResultado = document.getElementById("salida-resultado");
     const tituloResultado = document.getElementById("titulo-resultado");
@@ -270,7 +270,7 @@
     };
 
     try {
-      const datos = cargarDatosDesdeHtml();
+      const datos = await cargarDatosDesdeJson();
       const campos = obtenerCampos(datos);
       const camposNumericos = obtenerCamposNumericos(datos);
 
@@ -318,9 +318,9 @@
 
       actualizarResultado();
     } catch (error) {
-      salidaDatos.textContent = "Error al leer los datos del HTML";
+      salidaDatos.textContent = "Error al cargar datos.json";
       salidaResultado.textContent =
-        "Revisa el bloque JSON que esta dentro de index.html.";
+        "Si abriste index.html con doble clic, prueba con un servidor local simple.";
       console.error(error);
     }
   };
@@ -335,6 +335,7 @@
       promedio,
       query,
       consulta,
+      cargarDatosDesdeJson,
       aplicarFiltros,
       filtrarDatos,
       agruparDatos,

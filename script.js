@@ -193,30 +193,68 @@
       .map((campo) => campo.trim())
       .filter(Boolean);
 
-  const crearCondicionFiltro = (campo, valor) => {
-    const valorNormalizado = valor.trim().toLowerCase();
+  const esCampoNumerico = (datos, campo) =>
+    datos.some(
+      (elemento) =>
+        typeof elemento[campo] === "number" && !Number.isNaN(elemento[campo])
+    );
+
+  const crearCondicionFiltro = (datos, campo, operador, valor) => {
+    const valorTexto = String(valor ?? "").trim();
+    const valorNormalizado = valorTexto.toLowerCase();
 
     if (!campo || valorNormalizado === "") {
       return () => true;
     }
 
-    return (elemento) =>
-      String(elemento[campo] ?? "").toLowerCase().includes(valorNormalizado);
+    const campoNumerico = esCampoNumerico(datos, campo);
+    const valorNumero = Number(valorTexto);
+
+    return (elemento) => {
+      const valorElemento = elemento[campo];
+      const textoElemento = String(valorElemento ?? "").toLowerCase();
+      const numeroElemento = Number(valorElemento);
+
+      switch (operador) {
+        case "igual":
+          return campoNumerico
+            ? numeroElemento === valorNumero
+            : textoElemento === valorNormalizado;
+        case "mayor":
+          return numeroElemento > valorNumero;
+        case "mayor_o_igual":
+          return numeroElemento >= valorNumero;
+        case "menor":
+          return numeroElemento < valorNumero;
+        case "menor_o_igual":
+          return numeroElemento <= valorNumero;
+        default:
+          return textoElemento.includes(valorNormalizado);
+      }
+    };
   };
 
-  const filtrarDatos = (datos, campoFiltro, valorFiltro) =>
-    query(datos).where(crearCondicionFiltro(campoFiltro, valorFiltro)).execute();
+  const filtrarDatos = (datos, campoFiltro, operadorFiltro, valorFiltro) =>
+    query(datos)
+      .where(crearCondicionFiltro(datos, campoFiltro, operadorFiltro, valorFiltro))
+      .execute();
 
   const aplicarFiltros = (
     datos,
     campoFiltro,
+    operadorFiltro,
     valorFiltro,
     campoOrden,
     direccionOrden,
     camposSeleccionados
   ) => {
     const campos = parsearCamposSeleccionados(camposSeleccionados);
-    const datosFiltrados = filtrarDatos(datos, campoFiltro, valorFiltro);
+    const datosFiltrados = filtrarDatos(
+      datos,
+      campoFiltro,
+      operadorFiltro,
+      valorFiltro
+    );
     const consultaBase = query(datosFiltrados).orderBy(campoOrden, direccionOrden);
 
     return (campos.length === 0
@@ -228,11 +266,17 @@
   const agruparDatos = (
     datos,
     campoFiltro,
+    operadorFiltro,
     valorFiltro,
     campoGrupo,
     campoPromedio
   ) => {
-    const datosFiltrados = filtrarDatos(datos, campoFiltro, valorFiltro);
+    const datosFiltrados = filtrarDatos(
+      datos,
+      campoFiltro,
+      operadorFiltro,
+      valorFiltro
+    );
     const agregaciones = {
       count: (items) => items.length,
     };
@@ -249,12 +293,43 @@
       .execute();
   };
 
+  const interpretarConsultaConIA = async (
+    texto,
+    campos,
+    camposNumericos
+  ) => {
+    const respuesta = await fetch("/api/interpretar-consulta", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        consulta: texto,
+        campos,
+        camposNumericos,
+      }),
+    });
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(resultado.error || "No se pudo interpretar la consulta.");
+    }
+
+    return resultado;
+  };
+
   const iniciarAplicacion = async () => {
     const salidaDatos = document.getElementById("salida-datos");
     const salidaResultado = document.getElementById("salida-resultado");
     const tituloResultado = document.getElementById("titulo-resultado");
+    const consultaIa = document.getElementById("consulta-ia");
+    const estadoIa = document.getElementById("estado-ia");
+    const botonInterpretarConsulta =
+      document.getElementById("interpretar-consulta");
     const camposSeleccionados = document.getElementById("campos-seleccionados");
     const campoFiltro = document.getElementById("campo-filtro");
+    const operadorFiltro = document.getElementById("operador-filtro");
     const valorFiltro = document.getElementById("valor-filtro");
     const campoOrden = document.getElementById("campo-orden");
     const direccionOrden = document.getElementById("direccion-orden");
@@ -284,6 +359,7 @@
         const resultado = aplicarFiltros(
           datos,
           campoFiltro.value,
+          operadorFiltro.value,
           valorFiltro.value,
           campoOrden.value,
           direccionOrden.value,
@@ -299,8 +375,10 @@
         camposSeleccionados.value = "";
         valorFiltro.value = "";
         campoFiltro.value = campos[0] ?? "";
+        operadorFiltro.value = "contiene";
         campoOrden.value = campos[0] ?? "";
         direccionOrden.value = "asc";
+        estadoIa.textContent = "";
         actualizarResultado();
       });
 
@@ -308,12 +386,58 @@
         const resultado = agruparDatos(
           datos,
           campoFiltro.value,
+          operadorFiltro.value,
           valorFiltro.value,
           campoGrupo.value,
           campoPromedio.value
         );
 
         mostrarResultado("Resultado agrupado con filtro", resultado);
+      });
+
+      botonInterpretarConsulta.addEventListener("click", async () => {
+        if (!consultaIa.value.trim()) {
+          estadoIa.textContent = "Escribe una consulta para interpretar.";
+          return;
+        }
+
+        estadoIa.textContent = "Interpretando consulta...";
+
+        try {
+          const configuracion = await interpretarConsultaConIA(
+            consultaIa.value,
+            campos,
+            camposNumericos
+          );
+
+          camposSeleccionados.value = configuracion.select.join(", ");
+          campoFiltro.value = configuracion.filter.field || campos[0] || "";
+          operadorFiltro.value = configuracion.filter.operator || "contiene";
+          valorFiltro.value = configuracion.filter.value || "";
+          campoOrden.value = configuracion.orderBy.field || campos[0] || "";
+          direccionOrden.value = configuracion.orderBy.direction || "asc";
+          campoGrupo.value = configuracion.groupBy.field || campos[0] || "";
+          campoPromedio.value = configuracion.groupBy.averageField || "";
+          estadoIa.textContent = configuracion.message;
+
+          if (configuracion.mode === "group") {
+            const resultado = agruparDatos(
+              datos,
+              campoFiltro.value,
+              operadorFiltro.value,
+              valorFiltro.value,
+              campoGrupo.value,
+              campoPromedio.value
+            );
+
+            mostrarResultado("Resultado agrupado con IA", resultado);
+            return;
+          }
+
+          actualizarResultado();
+        } catch (error) {
+          estadoIa.textContent = error.message;
+        }
       });
 
       actualizarResultado();
@@ -339,6 +463,7 @@
       aplicarFiltros,
       filtrarDatos,
       agruparDatos,
+      interpretarConsultaConIA,
       crearCondicionFiltro,
       parsearCamposSeleccionados,
     };

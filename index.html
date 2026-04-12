@@ -15,6 +15,25 @@
       </p>
 
       <section class="filtros">
+        <h2>Consulta con IA</h2>
+
+        <div class="fila-filtros">
+          <label for="consulta-ia">Describe la consulta</label>
+          <textarea
+            id="consulta-ia"
+            rows="3"
+            placeholder="Ej: quiero todas las personas que tengan mas de 15 años, agrupalas por pais y muestra el promedio de edad"
+          ></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="interpretar-consulta">Interpretar con IA</button>
+        </div>
+
+        <p id="estado-ia"></p>
+      </section>
+
+      <section class="filtros">
         <h2>Filtros simples</h2>
 
         <div class="fila-filtros">
@@ -29,6 +48,18 @@
         <div class="fila-filtros">
           <label for="campo-filtro">Campo</label>
           <select id="campo-filtro"></select>
+        </div>
+
+        <div class="fila-filtros">
+          <label for="operador-filtro">Operador</label>
+          <select id="operador-filtro">
+            <option value="contiene">Contiene</option>
+            <option value="igual">Igual a</option>
+            <option value="mayor">Mayor que</option>
+            <option value="mayor_o_igual">Mayor o igual</option>
+            <option value="menor">Menor que</option>
+            <option value="menor_o_igual">Menor o igual</option>
+          </select>
         </div>
 
         <div class="fila-filtros">

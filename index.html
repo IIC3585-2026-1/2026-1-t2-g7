@@ -8,13 +8,19 @@
   </head>
   <body>
     <main class="container">
-      <h1>Motor de consultas en memoria</h1>
-      <p>
+      <h1 style="color: #00416A">Motor de consultas en memoria</h1>
+      <p style="color: #555">
         Base para probar consultas sobre una lista de objetos usando
         encadenamiento de funciones.
       </p>
 
-      <section class="filtros">
+      <div>
+        <button id="tabs1" class="tabs" onclick="mostrar('tab1', 'tabs1')">Consulta con IA</button>
+        <button id="tabs2" class="tabs" onclick="mostrar('tab2', 'tabs2')">Filtro Simple</button>
+        <button id="tabs3" class="tabs" onclick="mostrar('tab3', 'tabs3')">Agrupación Simple</button>
+      </div>
+
+      <section id = "tab1" class="filtros">
         <h2>Consulta con IA</h2>
 
         <div class="fila-filtros">
@@ -27,13 +33,13 @@
         </div>
 
         <div class="actions">
-          <button id="interpretar-consulta">Interpretar con IA</button>
+          <button class = "act_button" id="interpretar-consulta">Interpretar con IA</button>
         </div>
 
         <p id="estado-ia"></p>
       </section>
 
-      <section class="filtros">
+      <section id = "tab2" class="filtros">
         <h2>Filtros simples</h2>
 
         <div class="fila-filtros">
@@ -81,12 +87,12 @@
         </div>
 
         <div class="actions">
-          <button id="aplicar-filtros">Aplicar filtros</button>
-          <button id="limpiar-filtros">Limpiar</button>
+          <button class = "act_button" id="aplicar-filtros">Aplicar filtros</button>
+          <button class = "act_button" id="limpiar-filtros">Limpiar</button>
         </div>
       </section>
 
-      <section class="filtros">
+      <section id = "tab3" class="filtros">
         <h2>Agrupacion simple</h2>
 
         <div class="fila-filtros">
@@ -100,18 +106,17 @@
         </div>
 
         <div class="actions">
-          <button id="ver-agrupacion">Ver agrupacion</button>
+          <button class = "act_button" id="ver-agrupacion">Ver agrupacion</button>
         </div>
       </section>
 
-      <section>
-        <h2>Datos</h2>
-        <pre id="salida-datos">Cargando datos...</pre>
+      <section id = "resultados">
+        <div id="salida-resultado">Esperando query...</div>
       </section>
 
-      <section>
-        <h2 id="titulo-resultado">Resultado</h2>
-        <pre id="salida-resultado">Esperando datos...</pre>
+      <section id = 'datos'>
+        <h2>Datos</h2>
+        <pre id="salida-datos">Cargando datos...</pre>
       </section>
     </main>
 

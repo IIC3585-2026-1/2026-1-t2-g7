@@ -340,8 +340,24 @@
     const botonVerAgrupacion = document.getElementById("ver-agrupacion");
 
     const mostrarResultado = (titulo, resultado) => {
-      tituloResultado.textContent = titulo;
-      salidaResultado.textContent = formatearJson(resultado);
+      if (!Array.isArray(resultado) || resultado.length === 0) {
+        salidaResultado.textContent = "Sin resultados.";
+        return;
+      }
+
+      const columnas = Object.keys(resultado[0]);
+      const encabezados = columnas.map((col) => `<th>${col}</th>`).join("");
+      const filas = resultado
+        .map(
+          (fila) =>
+            "<tr>" +
+            columnas.map((col) => `<td>${fila[col] ?? ""}</td>`).join("") +
+            "</tr>"
+        )
+        .join("");
+
+      salidaResultado.innerHTML =
+        `<table class="tabla-resultado"><thead><tr>${encabezados}</tr></thead><tbody>${filas}</tbody></table>`;
     };
 
     try {
@@ -444,7 +460,7 @@
     } catch (error) {
       salidaDatos.textContent = "Error al cargar datos.json";
       salidaResultado.textContent =
-        "Si abriste index.html con doble clic, prueba con un servidor local simple.";
+        "Error al cargar datos.json. Si abriste index.html con doble clic, prueba con un servidor local simple.";
       console.error(error);
     }
   };
@@ -469,3 +485,17 @@
     };
   }
 })();
+
+function mostrar(id, tab_id) {
+  const tabs = document.querySelectorAll('.filtros');
+  const tabss = document.querySelectorAll('.tabs');
+
+  tabs.forEach(tab => tab.classList.remove('activo'));
+  tabss.forEach(tabs => tabs.classList.remove('tab_activo'));
+
+  document.getElementById(id).classList.add('activo');
+  document.getElementById(tab_id).classList.add('tab_activo');
+
+}
+
+mostrar('tab1', 'tabs1');

@@ -12,7 +12,7 @@ Para probarlo:
 
 1. Abre `index.html` en el navegador.
 2. Cambia el bloque JSON dentro de `index.html` por cualquier lista de objetos JSON.
-3. Usa los filtros simples de la pagina para probar consultas.
+3. Usa los filtros simples y la agrupacion simple de la pagina para probar consultas.
 
 Nota:
 

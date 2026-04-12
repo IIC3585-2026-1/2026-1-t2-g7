@@ -166,10 +166,25 @@
   const obtenerCampos = (datos) =>
     datos.length === 0 ? [] : Object.keys(datos[0]);
 
+  const obtenerCamposNumericos = (datos) =>
+    obtenerCampos(datos).filter((campo) =>
+      datos.every(
+        (elemento) =>
+          typeof elemento[campo] === "number" && !Number.isNaN(elemento[campo])
+      )
+    );
+
   const crearOpciones = (elementoSelect, campos) => {
     elementoSelect.innerHTML = campos
       .map((campo) => `<option value="${campo}">${campo}</option>`)
       .join("");
+  };
+
+  const crearOpcionesPromedio = (elementoSelect, campos) => {
+    elementoSelect.innerHTML = [
+      '<option value="">Sin promedio</option>',
+      ...campos.map((campo) => `<option value="${campo}">${campo}</option>`),
+    ].join("");
   };
 
   const parsearCamposSeleccionados = (texto) =>
@@ -208,6 +223,23 @@
     ).execute();
   };
 
+  const agruparDatos = (datos, campoGrupo, campoPromedio) => {
+    const agregaciones = {
+      count: (items) => items.length,
+    };
+
+    if (campoPromedio) {
+      agregaciones.average = (items) =>
+        average(items.map((elemento) => elemento[campoPromedio]));
+    }
+
+    return query(datos)
+      .groupBy(campoGrupo)
+      .aggregate(agregaciones)
+      .orderBy("count", "desc")
+      .execute();
+  };
+
   const iniciarAplicacion = () => {
     const salidaDatos = document.getElementById("salida-datos");
     const salidaResultado = document.getElementById("salida-resultado");
@@ -217,8 +249,11 @@
     const valorFiltro = document.getElementById("valor-filtro");
     const campoOrden = document.getElementById("campo-orden");
     const direccionOrden = document.getElementById("direccion-orden");
+    const campoGrupo = document.getElementById("campo-grupo");
+    const campoPromedio = document.getElementById("campo-promedio");
     const botonAplicarFiltros = document.getElementById("aplicar-filtros");
     const botonLimpiarFiltros = document.getElementById("limpiar-filtros");
+    const botonVerAgrupacion = document.getElementById("ver-agrupacion");
 
     const mostrarResultado = (titulo, resultado) => {
       tituloResultado.textContent = titulo;
@@ -228,10 +263,13 @@
     try {
       const datos = cargarDatosDesdeHtml();
       const campos = obtenerCampos(datos);
+      const camposNumericos = obtenerCamposNumericos(datos);
 
       salidaDatos.textContent = formatearJson(datos);
       crearOpciones(campoFiltro, campos);
       crearOpciones(campoOrden, campos);
+      crearOpciones(campoGrupo, campos);
+      crearOpcionesPromedio(campoPromedio, camposNumericos);
 
       const actualizarResultado = () => {
         const resultado = aplicarFiltros(
@@ -257,6 +295,16 @@
         actualizarResultado();
       });
 
+      botonVerAgrupacion.addEventListener("click", () => {
+        const resultado = agruparDatos(
+          datos,
+          campoGrupo.value,
+          campoPromedio.value
+        );
+
+        mostrarResultado("Resultado agrupado", resultado);
+      });
+
       actualizarResultado();
     } catch (error) {
       salidaDatos.textContent = "Error al leer los datos del HTML";
@@ -277,6 +325,7 @@
       query,
       consulta,
       aplicarFiltros,
+      agruparDatos,
       crearCondicionFiltro,
       parsearCamposSeleccionados,
     };

@@ -6,7 +6,7 @@ Archivos principales:
 
 - `index.html`: estructura basica
 - `styles.css`: estilos minimos
-- `script.js`: motor `consulta(datos)` y filtros simples
+- `script.js`: motor de consultas y filtros simples
 
 Para probarlo:
 
@@ -18,3 +18,4 @@ Nota:
 
 - Los datos se leen desde un bloque JSON dentro del mismo HTML.
 - Esto permite que funcione con doble clic, sin servidor local.
+- La libreria cumple con `query(data).select().where().orderBy().groupBy().aggregate().execute()`.

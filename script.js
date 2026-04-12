@@ -204,6 +204,9 @@
       String(elemento[campo] ?? "").toLowerCase().includes(valorNormalizado);
   };
 
+  const filtrarDatos = (datos, campoFiltro, valorFiltro) =>
+    query(datos).where(crearCondicionFiltro(campoFiltro, valorFiltro)).execute();
+
   const aplicarFiltros = (
     datos,
     campoFiltro,
@@ -213,9 +216,8 @@
     camposSeleccionados
   ) => {
     const campos = parsearCamposSeleccionados(camposSeleccionados);
-    const consultaBase = query(datos)
-      .where(crearCondicionFiltro(campoFiltro, valorFiltro))
-      .orderBy(campoOrden, direccionOrden);
+    const datosFiltrados = filtrarDatos(datos, campoFiltro, valorFiltro);
+    const consultaBase = query(datosFiltrados).orderBy(campoOrden, direccionOrden);
 
     return (campos.length === 0
       ? consultaBase
@@ -223,7 +225,14 @@
     ).execute();
   };
 
-  const agruparDatos = (datos, campoGrupo, campoPromedio) => {
+  const agruparDatos = (
+    datos,
+    campoFiltro,
+    valorFiltro,
+    campoGrupo,
+    campoPromedio
+  ) => {
+    const datosFiltrados = filtrarDatos(datos, campoFiltro, valorFiltro);
     const agregaciones = {
       count: (items) => items.length,
     };
@@ -233,7 +242,7 @@
         average(items.map((elemento) => elemento[campoPromedio]));
     }
 
-    return query(datos)
+    return query(datosFiltrados)
       .groupBy(campoGrupo)
       .aggregate(agregaciones)
       .orderBy("count", "desc")
@@ -298,11 +307,13 @@
       botonVerAgrupacion.addEventListener("click", () => {
         const resultado = agruparDatos(
           datos,
+          campoFiltro.value,
+          valorFiltro.value,
           campoGrupo.value,
           campoPromedio.value
         );
 
-        mostrarResultado("Resultado agrupado", resultado);
+        mostrarResultado("Resultado agrupado con filtro", resultado);
       });
 
       actualizarResultado();
@@ -325,6 +336,7 @@
       query,
       consulta,
       aplicarFiltros,
+      filtrarDatos,
       agruparDatos,
       crearCondicionFiltro,
       parsearCamposSeleccionados,

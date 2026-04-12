@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motor de Consultas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Motor de consultas en memoria</h1>
+      <p>
+        Base para probar consultas sobre una lista de objetos usando
+        encadenamiento de funciones.
+      </p>
+
+      <section class="filtros">
+        <h2>Filtros simples</h2>
+
+        <div class="fila-filtros">
+          <label for="campo-filtro">Campo</label>
+          <select id="campo-filtro"></select>
+        </div>
+
+        <div class="fila-filtros">
+          <label for="valor-filtro">Valor</label>
+          <input id="valor-filtro" type="text" placeholder="Escribe un valor" />
+        </div>
+
+        <div class="fila-filtros">
+          <label for="campo-orden">Ordenar por</label>
+          <select id="campo-orden"></select>
+        </div>
+
+        <div class="fila-filtros">
+          <label for="direccion-orden">Direccion</label>
+          <select id="direccion-orden">
+            <option value="asc">Ascendente</option>
+            <option value="desc">Descendente</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button id="aplicar-filtros">Aplicar filtros</button>
+          <button id="limpiar-filtros">Limpiar</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Datos</h2>
+        <pre id="salida-datos">Cargando datos...</pre>
+      </section>
+
+      <section>
+        <h2 id="titulo-resultado">Resultado</h2>
+        <pre id="salida-resultado">Esperando datos...</pre>
+      </section>
+    </main>
+
+    <script id="datos-json" type="application/json">
+      [
+        {
+          "id": 1,
+          "nombre": "Ana",
+          "edad": 25,
+          "ciudad": "Santiago"
+        },
+        {
+          "id": 2,
+          "nombre": "Luis",
+          "edad": 35,
+          "ciudad": "Valparaiso"
+        },
+        {
+          "id": 3,
+          "nombre": "Carla",
+          "edad": 32,
+          "ciudad": "Santiago"
+        },
+        {
+          "id": 4,
+          "nombre": "Pedro",
+          "edad": 28,
+          "ciudad": "Concepcion"
+        }
+      ]
+    </script>
+
+    <script src="script.js"></script>
+  </body>
+</html>

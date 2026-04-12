@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f4f4f4;
+  color: #222;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+
+.filtros {
+  margin: 16px 0 24px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.fila-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+button,
+input,
+select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+section {
+  margin-bottom: 24px;
+}
+
+pre {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #ddd;
+  background: white;
+  overflow: auto;
+}

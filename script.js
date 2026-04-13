@@ -106,16 +106,16 @@
           }
 
           return {
-            filas: estado.grupos.map((grupo) => ({
-              [estado.campoAgrupado]: grupo.clave,
-              ...Object.entries(agregaciones).reduce(
-                (resultado, [nombre, funcion]) => ({
+            filas: estado.grupos.map((grupo) => {
+              let resultado = { [estado.campoAgrupado]: grupo.clave };
+              for (const nombre in agregaciones) {
+                resultado = {
                   ...resultado,
-                  [nombre]: funcion(grupo.elementos),
-                }),
-                {}
-              ),
-            })),
+                  [nombre]: agregaciones[nombre](grupo.elementos),
+                };
+              }
+              return resultado;
+            }),
             campoAgrupado: null,
             grupos: [],
           };
@@ -163,8 +163,12 @@
     return respuesta.json();
   };
 
-  const obtenerCampos = (datos) =>
-    datos.length === 0 ? [] : Object.keys(datos[0]);
+  const obtenerCampos = (datos) => {
+    if (datos.length === 0) return [];
+    const campos = [];
+    for (const campo in datos[0]) campos.push(campo);
+    return campos;
+  };
 
   const obtenerCamposNumericos = (datos) =>
     obtenerCampos(datos).filter((campo) =>
@@ -345,7 +349,8 @@
         return;
       }
 
-      const columnas = Object.keys(resultado[0]);
+      const columnas = [];
+      for (const col in resultado[0]) columnas.push(col);
       const encabezados = columnas.map((col) => `<th>${col}</th>`).join("");
       const filas = resultado
         .map(
